@@ -10,12 +10,7 @@ const translations = {
     emailPlaceholder: "you@example.com",
     passwordLabel: "Password",
     passwordPlaceholder: "Enter your password",
-    signInButton: "Sign In",
-    orText: "or",
-    githubSignIn: "Sign in with GitHub",
-    loginHint: "Use your role to access customized guidance, goal planning, and coaching resources.",
     welcomeBack: "Welcome back,",
-    signOutButton: "Sign Out",
     dailyOverview: "Daily Overview",
     suggestionsCardTitle: "Suggestions",
     suggestionsCardText: "Get custom plans based on your goals.",
@@ -48,12 +43,7 @@ const translations = {
     emailPlaceholder: "tú@ejemplo.com",
     passwordLabel: "Contraseña",
     passwordPlaceholder: "Introduce tu contraseña",
-    signInButton: "Iniciar sesión",
-    orText: "o",
-    githubSignIn: "Iniciar con GitHub",
-    loginHint: "Usa tu rol para acceder a orientación, objetivos y recursos personalizados.",
     welcomeBack: "Bienvenido de nuevo,",
-    signOutButton: "Cerrar sesión",
     dailyOverview: "Resumen diario",
     suggestionsCardTitle: "Sugerencias",
     suggestionsCardText: "Obtén planes personalizados según tus metas.",
@@ -133,9 +123,7 @@ const state = {
 };
 
 const elements = {
-  loginPage: document.getElementById("loginPage"),
   dashboardPage: document.getElementById("dashboardPage"),
-  languageSelect: document.getElementById("languageSelect"),
   languageSelectDesktop: document.getElementById("languageSelectDesktop"),
   goalSelect: document.getElementById("goalSelect"),
   suggestionsList: document.getElementById("suggestionsList"),
@@ -165,8 +153,6 @@ function translatePage() {
     }
   });
 
-  elements.languageSelect.value = state.language;
-  elements.languageSelectDesktop.innerHTML = document.getElementById("languageSelect").innerHTML;
   elements.languageSelectDesktop.value = state.language;
   updateDashboard();
 }
@@ -244,71 +230,22 @@ function setLanguage(value) {
   translatePage();
 }
 
-function showDashboard() {
-  elements.loginPage.classList.add("hidden");
-  elements.dashboardPage.classList.remove("hidden");
-  updateDashboard();
+function updateLanguageDropdowns() {
+  const desktopSelect = elements.languageSelectDesktop;
+  desktopSelect.innerHTML = `
+    <option value="en">English</option>
+    <option value="es">Español</option>
+  `;
+  desktopSelect.value = state.language;
 }
 
-function signOut() {
-  fetch("/api/logout", { method: "POST" }).then(() => {
-    elements.dashboardPage.classList.add("hidden");
-    elements.loginPage.classList.remove("hidden");
-  });
-}
+updateLanguageDropdowns();
 
-document.getElementById("githubSignIn").addEventListener("click", () => {
-  window.location.href = "https://github.com/login/oauth/authorize?client_id=YOUR_CLIENT_ID&scope=read:user user:email";
-});
-
-document.getElementById("loginForm").addEventListener("submit", async event => {
-  event.preventDefault();
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-  const role = document.querySelector("input[name=role]:checked").value;
-
-  if (!email || !password) {
-    alert(translations[state.language].emailLabel + " " + translations[state.language].passwordLabel);
-    return;
-  }
-
-  const response = await fetch("/api/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password, role })
-  });
-
-  const result = await response.json();
-  if (!response.ok) {
-    alert(result.message || "Login failed.");
-    return;
-  }
-
-  state.role = result.user.role;
-  state.name = result.user.name;
-  showDashboard();
-});
-
-document.getElementById("signOutBtn").addEventListener("click", signOut);
-
-elements.languageSelect.addEventListener("change", event => setLanguage(event.target.value));
 elements.languageSelectDesktop.addEventListener("change", event => setLanguage(event.target.value));
-
 elements.goalSelect.addEventListener("change", updateSuggestions);
-
-async function initApp() {
-  const response = await fetch("/api/me");
-  if (response.ok) {
-    const result = await response.json();
-    state.role = result.user.role;
-    state.name = result.user.name;
-    showDashboard();
-  }
-}
 
 translatePage();
 updateSuggestions();
-initApp();
 
 document.getElementById("aiHelpBtn").addEventListener("click", () => {
   const existing = document.querySelector(".ai-message");
