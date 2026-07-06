@@ -247,22 +247,141 @@ elements.goalSelect.addEventListener("change", updateSuggestions);
 translatePage();
 updateSuggestions();
 
-document.getElementById("aiHelpBtn").addEventListener("click", () => {
-  const existing = document.querySelector(".ai-message");
-  if (existing) {
-    existing.remove();
-    return;
+// AI Chat System
+const aiChatModal = document.getElementById("aiChatModal");
+const aiHelpBtn = document.getElementById("aiHelpBtn");
+const aiCloseBtn = document.getElementById("aiCloseBtn");
+const aiChatInput = document.getElementById("aiChatInput");
+const aiSendBtn = document.getElementById("aiSendBtn");
+const aiChatMessages = document.getElementById("aiChatMessages");
+
+// AI Responses Database (Fallback for when backend is not available)
+const aiResponses = {
+  scholarship: {
+    keywords: ["scholarship", "financial", "aid", "grant", "funding"],
+    response: (input) => {
+      return `Based on your interest in scholarships, here are some options:\n\n${data.scholarships.map(s => `• ${s.title} - ${s.amount} (Deadline: ${s.deadline})`).join('\n')}\n\nWould you like more information about any of these scholarships?`
+    }
+  },
+  coaching: {
+    keywords: ["coaching", "center", "mentor", "tutor", "class"],
+    response: (input) => {
+      return `Here are some coaching centers near you:\n\n${data.centers.map(c => `• ${c.name}\n  Location: ${c.location}\n  Programs: ${c.programs}`).join('\n\n')}\n\nWhich one interests you?`
+    }
+  },
+  college: {
+    keywords: ["college", "university", "admission", "education"],
+    response: (input) => {
+      return `Here are some great college options based on your interests:\n\n${data.colleges.map(c => `• ${c.title}\n  Focus: ${c.focus}`).join('\n\n')}\n\nWould you like to know more about any of these?`
+    }
+  },
+  career: {
+    keywords: ["career", "job", "opportunity", "work", "employment", "company"],
+    response: (input) => {
+      return `Here are some exciting career opportunities:\n\n${data.companies.map(c => `• ${c.title}\n  ${c.opportunity}`).join('\n\n')}\n\nAlso check out these career paths:\n${data.careers.map(c => `• ${c.title} - ${c.description}`).join('\n')}`
+    }
+  },
+  goal: {
+    keywords: ["engineering", "business", "arts", "medicine", "goal", "path", "suggest"],
+    response: (input) => {
+      let goal = "engineering";
+      if (input.includes("business")) goal = "business";
+      if (input.includes("arts") || input.includes("design")) goal = "arts";
+      if (input.includes("medicine") || input.includes("medical")) goal = "medicine";
+      
+      const suggestions = data.goalSuggestions[goal];
+      return `For a career in ${goal}, here are my recommendations:\n\n${suggestions.map(s => `• ${s}`).join('\n')}\n\nWould you like more details on any of these?`
+    }
   }
+};
 
-  const message = document.createElement("div");
-  message.className = "ai-message";
-  message.innerHTML = `
-    <strong>AI Guidance</strong>
-    <p>Ask me to suggest scholarships, career paths, college choices, or coaching centers.</p>
-  `;
+function findAIResponse(userInput) {
+  const input = userInput.toLowerCase();
+  
+  for (const [category, resp] of Object.entries(aiResponses)) {
+    if (resp.keywords.some(keyword => input.includes(keyword))) {
+      return resp.response(input);
+    }
+  }
+  
+  return `I can help you with:\n• Finding scholarships\n• Locating coaching centers\n• Exploring colleges and universities\n• Discovering career opportunities\n• Planning your education path\n\nWhat would you like to know more about?`;
+}
 
-  document.body.appendChild(message);
-  setTimeout(() => {
-    message.remove();
-  }, 6000);
+function addMessageToChat(message, isUser = false) {
+  const messageDiv = document.createElement("div");
+  messageDiv.className = `ai-message-bubble ${isUser ? "ai-message-user" : "ai-message-assistant"}`;
+  messageDiv.textContent = message;
+  aiChatMessages.appendChild(messageDiv);
+  aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+}
+
+async function fetchAIResponse(userInput) {
+  try {
+    const response = await fetch("/api/ai/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ message: userInput })
+    });
+    
+    if (!response.ok) {
+      throw new Error("Failed to get AI response");
+    }
+    
+    const data = await response.json();
+    return data.message || findAIResponse(userInput);
+  } catch (error) {
+    console.error("AI Error:", error);
+    // Fallback to local response if backend fails
+    return findAIResponse(userInput);
+  }
+}
+
+function handleAIMessage(userInput) {
+  if (!userInput.trim()) return;
+  
+  // Add user message
+  addMessageToChat(userInput, true);
+  aiChatInput.value = "";
+  aiSendBtn.disabled = true;
+  
+  // Fetch AI response from backend or fallback to local
+  fetchAIResponse(userInput).then(response => {
+    setTimeout(() => {
+      addMessageToChat(response, false);
+      aiSendBtn.disabled = false;
+      aiChatInput.focus();
+    }, 400);
+  });
+}
+
+// Event Listeners
+aiHelpBtn.addEventListener("click", () => {
+  aiChatModal.classList.toggle("active");
+  if (aiChatModal.classList.contains("active")) {
+    aiChatInput.focus();
+  }
+});
+
+aiCloseBtn.addEventListener("click", () => {
+  aiChatModal.classList.remove("active");
+});
+
+aiSendBtn.addEventListener("click", () => {
+  handleAIMessage(aiChatInput.value);
+});
+
+aiChatInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    handleAIMessage(aiChatInput.value);
+  }
+});
+
+// Close modal when clicking outside
+document.addEventListener("click", (e) => {
+  if (!aiChatModal.contains(e.target) && e.target !== aiHelpBtn) {
+    aiChatModal.classList.remove("active");
+  }
 });
