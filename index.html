@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduCareer Guidance</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page page--login" id="loginPage">
+      <button class="ai-float-btn" id="aiHelpBtn">AI Help</button>
+      <div class="landing-panel">
+        <div class="glass-card login-card">
+          <div class="brand-block">
+            <div class="brand-icon">E</div>
+            <div>
+              <h1 data-i18n="appTitle">EduCareer Guidance</h1>
+              <p data-i18n="appSubtitle">AI-powered education and career planning for students, parents, and teachers.</p>
+            </div>
+          </div>
+
+          <div class="feature-chip">
+            <span>24/7 AI Support</span>
+            <span>Scholarships · College Advice · Career Paths</span>
+          </div>
+
+          <div class="option-row">
+            <label for="languageSelect" data-i18n="languageLabel">Language</label>
+            <select id="languageSelect">
+              <option value="en">English</option>
+              <option value="es">Español</option>
+            </select>
+          </div>
+
+          <form id="loginForm" class="login-form">
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="role" value="student" checked />
+                <span data-i18n="roleStudent">Student</span>
+              </label>
+              <label>
+                <input type="radio" name="role" value="parent" />
+                <span data-i18n="roleParent">Parent</span>
+              </label>
+              <label>
+                <input type="radio" name="role" value="teacher" />
+                <span data-i18n="roleTeacher">Teacher</span>
+              </label>
+            </div>
+
+            <label for="email" data-i18n="emailLabel">Email</label>
+            <input id="email" name="email" type="email" data-i18n-placeholder="emailPlaceholder" placeholder="you@example.com" required />
+
+            <label for="password" data-i18n="passwordLabel">Password</label>
+            <input id="password" name="password" type="password" data-i18n-placeholder="passwordPlaceholder" placeholder="Enter your password" required />
+
+            <button class="btn btn-primary" type="submit" data-i18n="signInButton">Sign In</button>
+          </form>
+
+          <div class="divider"><span data-i18n="orText">or</span></div>
+
+          <button id="githubSignIn" class="btn btn-secondary" type="button">
+            <span>🐱</span>
+            <span data-i18n="githubSignIn">Sign in with GitHub</span>
+          </button>
+
+          <p class="hint" data-i18n="loginHint">Use your role to access customized guidance, goal planning, and coaching resources.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="page page--dashboard hidden" id="dashboardPage">
+      <button class="ai-float-btn" id="aiHelpBtn">AI Help</button>
+      <header class="dashboard-header">
+        <div class="dash-brand">
+          <div class="brand-icon small">E</div>
+          <div>
+            <p data-i18n="welcomeBack">Welcome back,</p>
+            <h1 id="userNameDisplay">Learner</h1>
+          </div>
+        </div>
+        <div class="header-actions">
+          <div class="status-pill" id="roleBadge">Student</div>
+          <select id="languageSelectDesktop" class="language-dropdown"></select>
+          <button id="signOutBtn" class="btn btn-secondary" data-i18n="signOutButton">Sign Out</button>
+        </div>
+      </header>
+
+      <main class="dashboard-main">
+        <section class="overview-panel glass-panel">
+          <div class="panel-header">
+            <div>
+              <h2 data-i18n="dailyOverview">Daily Overview</h2>
+              <p id="dashboardMessage">AI guidance is ready to help with goals, scholarships, and careers.</p>
+            </div>
+            <div class="availability-badge">
+              <span>24/7 AI</span>
+            </div>
+          </div>
+
+          <div class="cards-grid">
+            <div class="mini-card">
+              <strong data-i18n="suggestionsCardTitle">Suggestions</strong>
+              <p data-i18n="suggestionsCardText">Get custom plans based on your goals.</p>
+            </div>
+            <div class="mini-card">
+              <strong data-i18n="coachingCardTitle">Coaching</strong>
+              <p data-i18n="coachingCardText">Find local coaching centers and mentors.</p>
+            </div>
+            <div class="mini-card">
+              <strong data-i18n="scholarshipCardTitle">Scholarships</strong>
+              <p data-i18n="scholarshipCardText">Explore scholarships that fit your profile.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="suggestion-panel glass-panel">
+          <div class="section-header">
+            <h2 data-i18n="goalSuggestionsTitle">Goal-Based Suggestions</h2>
+            <select id="goalSelect">
+              <option value="engineering" data-i18n="goalEngineering">Engineering</option>
+              <option value="business" data-i18n="goalBusiness">Business</option>
+              <option value="arts" data-i18n="goalArts">Arts & Design</option>
+              <option value="medicine" data-i18n="goalMedicine">Medicine</option>
+            </select>
+          </div>
+          <div class="goal-list" id="suggestionsList"></div>
+        </section>
+
+        <section class="grid-panel">
+          <div class="glass-panel">
+            <div class="section-header">
+              <h2 data-i18n="coachingCentersTitle">Coaching Centers</h2>
+              <span class="badge" data-i18n="nearYouBadge">Near You</span>
+            </div>
+            <div class="cards-list" id="centersList"></div>
+          </div>
+
+          <div class="glass-panel">
+            <div class="section-header">
+              <h2 data-i18n="contactTitle">Contact Information</h2>
+              <p data-i18n="contactSubtitle">Reach out any time for support.</p>
+            </div>
+            <div class="contact-block">
+              <p><strong>Email:</strong> support@educareer.com</p>
+              <p><strong>Phone:</strong> +1 800 123 4567</p>
+              <p><strong>Office:</strong> 42 Future Lane, Global City</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid-panel">
+          <div class="glass-panel">
+            <div class="section-header">
+              <h2 data-i18n="scholarshipsTitle">Scholarships</h2>
+            </div>
+            <div class="cards-list" id="scholarshipsList"></div>
+          </div>
+
+          <div class="glass-panel">
+            <div class="section-header">
+              <h2 data-i18n="collegeOptionsTitle">College Options</h2>
+            </div>
+            <div class="cards-list" id="collegesList"></div>
+          </div>
+        </section>
+
+        <section class="grid-panel">
+          <div class="glass-panel">
+            <div class="section-header">
+              <h2 data-i18n="companyTitle">Company Opportunities</h2>
+            </div>
+            <div class="cards-list" id="companiesList"></div>
+          </div>
+
+          <div class="glass-panel">
+            <div class="section-header">
+              <h2 data-i18n="careerTitle">Career Opportunities</h2>
+            </div>
+            <div class="cards-list" id="careersList"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
